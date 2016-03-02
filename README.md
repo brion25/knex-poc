@@ -5,6 +5,7 @@ Proof of concept of the library Knex.js, for this PoC, I'll be using [PostgreSQL
 ## Pre-requisites
 
 - PostgreSQL needs to be installed
+- Run PostgreSQL
 
 ## Instructions
 
