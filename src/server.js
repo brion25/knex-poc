@@ -1,7 +1,9 @@
 import knex from 'knex';
+import express from 'express';
+import bodyParser from 'body-parser';
 
 // Starting Knex
-const pg = knex({
+global.pg = knex({
   client : 'pg',
   connection: {
     port : 5432,
@@ -10,67 +12,17 @@ const pg = knex({
   }
 });
 
-const table = 'books'
 
-const books = [
-  {
-    name : 'Da Vince Code',
-    pages : 352,
-    editorial : 'Santillana'
-  },
-  {
-    name : 'JS for Dummies',
-    pages : 501,
-    editorial : 'Pearson'
-  }
-];
+import booksRouter from './routes/books'
 
-function createTable(){
-  return pg.schema.dropTableIfExists(table).then(function(){
-    return pg.schema.createTable(table,function(table){
-      table.string('name');
-      table.decimal('pages');
-      table.string('editorial');
-    });
-  });
-}
+const app = express(),
+      PORT = process.env.PORT || 3000;
 
-function insertBooks(){
-  let promises = [];
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-  books.forEach((book) => {
-    promises.push(
-      pg(table).insert({
-        name : book.name,
-        pages : book.pages,
-        editorial : book.editorial
-      })
-    );
-  });
+app.use('/book',booksRouter);
 
-  return Promise.all(promises);
-}
-
-function queryBooks(){
-  return pg.select('name','pages','editorial').from(table)
-    .then(function(books){
-      console.log(books)
-    });
-}
-
-createTable()
-  .then(function(){
-    console.log(`Table : ${table} was created`);
-  })
-  .then(insertBooks)
-  .then(function(){
-    console.log('Books inserted...')
-  })
-  .then(queryBooks)
-  .then(function(){
-    process.exit(0)
-  })
-  .catch(function(err){
-    console.log(err);
-    process.exit(1);
-  });
+app.listen(PORT,() => {
+  console.log(`Server is listening at port ${PORT}`);
+})
